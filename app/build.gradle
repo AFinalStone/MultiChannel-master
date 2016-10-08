@@ -1,0 +1,139 @@
+apply plugin: 'com.android.application'
+
+
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
+//获取local.properties的内容
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+
+    // 签名文件
+    signingConfigs {
+        config {
+            storeFile file(properties.getProperty("keystroe_storeFile"))
+            storePassword properties.getProperty("keystroe_storePassword")
+            keyAlias properties.getProperty("keystroe_keyAlias")
+            keyPassword properties.getProperty("keystroe_keyPassword")
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.shi.androidstudio.multichannel"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0.1"
+        manifestPlaceholders = [UMENG_CHANNEL_VALUE: "main"]
+        resValue "string", "app_name", "默认logo"
+        resValue "bool", "auto_updates", 'true'
+        // 动态修改 常量 字段
+        buildConfigField "String", "ENVIRONMENT", '"默认效果"'
+    }
+
+    // 多渠道/多环境 的不同配置
+    productFlavors {
+        baidu{
+            // 每个环境包名不同
+            applicationId "com.shi.androidstudio.multichannel.baidu"
+            // 动态添加 string.xml 字段；
+            // 注意，这里是添加，在 string.xml 不能有这个字段，会重名！！！
+            resValue "string", "app_name", "百度"
+            resValue "bool", "auto_updates", 'false'
+            // 动态修改 常量 字段
+            buildConfigField "String", "ENVIRONMENT", '"百度"'
+            // 修改 AndroidManifest.xml 里渠道变量
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
+        }
+        qq{
+            applicationId "com.shi.androidstudio.multichannel.qihu360"
+
+            resValue "string", "app_name", "腾讯"
+            resValue "bool", "auto_updates", 'true'
+
+            buildConfigField "String", "ENVIRONMENT", '"腾讯"'
+
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "qq"]
+        }
+        xiaomi{
+            applicationId "com.shi.androidstudio.multichannel.xiaomi"
+
+            resValue "string", "app_name", "小米"
+            resValue "bool", "auto_updates", 'true'
+            resValue "drawable", "isrRank", 'true'
+
+            buildConfigField "String", "ENVIRONMENT", '"小米"'
+
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
+        }
+    }
+
+    //移除lint检测的error
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            // debug模式下，显示log
+            buildConfigField("boolean", "LOG_DEBUG", "true")
+
+            applicationIdSuffix ".debug"
+            // 版本名前缀
+            versionNameSuffix "-debug"
+            // 不开启混淆
+            minifyEnabled false
+            // 不开启ZipAlign优化
+            zipAlignEnabled false
+            // 不移除无用的resource文件
+            shrinkResources false
+            // 使用debug签名
+            signingConfig signingConfigs.config
+
+        }
+        release {
+            // release模式下，不显示log
+            buildConfigField("boolean", "LOG_DEBUG", "false")
+            buildConfigField("String", "API_HOST", "\"http://api.release.com\"")//API Host
+            // 版本名前缀
+            versionNameSuffix "-relase"
+            // 开启混淆
+            minifyEnabled false
+            // 开启ZipAlign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            // 使用release签名
+//            signingConfig signingConfigs.config
+            // 混淆文件位置
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+//            // 批量打包
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        //输出apk名称为：渠道名_版本名_时间.apk
+                        def fileName = "${variant.productFlavors[0].name}_v${defaultConfig.versionName}_${releaseTime()}.apk"
+                        output.outputFile = new File(outputFile.parent, fileName)
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+}
+
