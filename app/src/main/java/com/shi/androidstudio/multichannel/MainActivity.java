@@ -18,12 +18,5 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         tv_content = (TextView) findViewById(R.id.tv_content);
         tv_content.setText(ENVIRONMENT);
-        tv_content.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,MainActivity_QQ.class);
-                startActivity(intent);
-            }
-        });
     }
 }
