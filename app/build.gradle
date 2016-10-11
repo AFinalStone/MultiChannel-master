@@ -13,7 +13,19 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
 
-    // 签名文件
+// 使用签名文件进行签名的两种方式
+
+//    //第一种：使用gradle直接签名打包
+//    signingConfigs {
+//        config {
+//            storeFile file('keyTest.jks')
+//            storePassword '123456'
+//            keyAlias 'HomeKey'
+//            keyPassword '123456'
+//        }
+//    }
+    //第二种：为了保护签名文件，把它放在local.properties中并在版本库中排除
+    // ，不把这些信息写入到版本库中（注意，此种方式签名文件中不能有中文）
     signingConfigs {
         config {
             storeFile file(properties.getProperty("keystroe_storeFile"))
@@ -23,17 +35,12 @@ android {
         }
     }
 
+
     defaultConfig {
-        applicationId "com.shi.androidstudio.multichannel"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0.1"
-        manifestPlaceholders = [UMENG_CHANNEL_VALUE: "main"]
-        resValue "string", "app_name", "默认logo"
-        resValue "bool", "auto_updates", 'true'
-        // 动态修改 常量 字段
-        buildConfigField "String", "ENVIRONMENT", '"默认效果"'
     }
 
     // 多渠道/多环境 的不同配置
@@ -46,17 +53,17 @@ android {
             resValue "string", "app_name", "百度"
             resValue "bool", "auto_updates", 'false'
             // 动态修改 常量 字段
-            buildConfigField "String", "ENVIRONMENT", '"百度"'
+            buildConfigField "String", "ENVIRONMENT", '"我是百度首页"'
             // 修改 AndroidManifest.xml 里渠道变量
             manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
         }
         qq{
-            applicationId "com.shi.androidstudio.multichannel.qihu360"
+            applicationId "com.shi.androidstudio.multichannel.qq"
 
             resValue "string", "app_name", "腾讯"
             resValue "bool", "auto_updates", 'true'
 
-            buildConfigField "String", "ENVIRONMENT", '"腾讯"'
+            buildConfigField "String", "ENVIRONMENT", '"我是腾讯首页"'
 
             manifestPlaceholders = [UMENG_CHANNEL_VALUE: "qq"]
         }
@@ -67,7 +74,7 @@ android {
             resValue "bool", "auto_updates", 'true'
             resValue "drawable", "isrRank", 'true'
 
-            buildConfigField "String", "ENVIRONMENT", '"小米"'
+            buildConfigField "String", "ENVIRONMENT", '"我是小米首页"'
 
             manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
         }
@@ -83,8 +90,9 @@ android {
             // debug模式下，显示log
             buildConfigField("boolean", "LOG_DEBUG", "true")
 
+            //为已经存在的applicationId添加后缀
             applicationIdSuffix ".debug"
-            // 版本名前缀
+            // 为版本名添加后缀
             versionNameSuffix "-debug"
             // 不开启混淆
             minifyEnabled false
@@ -92,23 +100,22 @@ android {
             zipAlignEnabled false
             // 不移除无用的resource文件
             shrinkResources false
-            // 使用debug签名
+            // 使用config签名
             signingConfig signingConfigs.config
 
         }
         release {
             // release模式下，不显示log
             buildConfigField("boolean", "LOG_DEBUG", "false")
-            buildConfigField("String", "API_HOST", "\"http://api.release.com\"")//API Host
-            // 版本名前缀
+            // 为版本名添加后缀
             versionNameSuffix "-relase"
-            // 开启混淆
+            // 不开启混淆
             minifyEnabled false
             // 开启ZipAlign优化
             zipAlignEnabled true
             // 移除无用的resource文件
             shrinkResources true
-            // 使用release签名
+            // 使用config签名
 //            signingConfig signingConfigs.config
             // 混淆文件位置
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
