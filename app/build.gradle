@@ -55,7 +55,8 @@ android {
             // 动态修改 常量 字段
             buildConfigField "String", "ENVIRONMENT", '"我是百度首页"'
             // 修改 AndroidManifest.xml 里渠道变量
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
+            manifestPlaceholders = [CHANNEL_VALUE: "baidu"
+                                    ,app_icon   : "@mipmap/logo_baidu"]
         }
         qq{
             applicationId "com.shi.androidstudio.multichannel.qq"
@@ -65,7 +66,8 @@ android {
 
             buildConfigField "String", "ENVIRONMENT", '"我是腾讯首页"'
 
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "qq"]
+            manifestPlaceholders = [CHANNEL_VALUE: "qq"
+                                    ,app_icon   : "@mipmap/icon_qq"]
         }
         xiaomi{
             applicationId "com.shi.androidstudio.multichannel.xiaomi"
@@ -76,7 +78,8 @@ android {
 
             buildConfigField "String", "ENVIRONMENT", '"我是小米首页"'
 
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
+            manifestPlaceholders = [CHANNEL_VALUE: "xiaomi"
+                                    ,app_icon   : "@mipmap/icon_xiaomi"]
         }
     }
 

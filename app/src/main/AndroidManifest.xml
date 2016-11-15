@@ -17,8 +17,8 @@
         </activity>
 
         <meta-data
-            android:name="UMENG"
-            android:value="${UMENG_CHANNEL_VALUE}" />
+            android:name="CHANNEL"
+            android:value="${CHANNEL_VALUE}" />
 
     </application>
 
