@@ -14,6 +14,12 @@ android {
         manifestPlaceholders = [CHANNEL_VALUE: "baidu"]//AndroidManifest.xml 里渠道变量
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions "default"//默认渠道
+        resConfigs "en"//只保留默认的国际化标准
+
+        ndk {//ndk的so库过滤
+            abiFilters "armeabi"/*, "armeabi-v7a"*/, "arm64-v8a"
+        }
+
     }
 
     // 使用签名文件进行签名的两种方式
@@ -40,26 +46,26 @@ android {
 
     //多渠道打包
     productFlavors {
-        qq {//QQ
+        baidu {//QQ
             applicationId "com.shi.androidstudio.multichannel.baidu"
 //             动态修改 常量 字段
             buildConfigField "String", "ENVIRONMENT", '"我是百度首页"'
 //             修改 AndroidManifest.xml 里渠道变量
             manifestPlaceholders = [CHANNEL_VALUE: "baidu"]
         }
-        baidu {//百度
+        qq {//百度
             applicationId "com.shi.androidstudio.multichannel.qq"
 //             动态修改 常量 字段
             buildConfigField "String", "ENVIRONMENT", '"我是腾讯首页"'
 //             修改 AndroidManifest.xml 里渠道变量
-            manifestPlaceholders = [CHANNEL_VALUE: "baidu"]
+            manifestPlaceholders = [CHANNEL_VALUE: "qq"]
         }
         xiaomi {//小米
             applicationId "com.shi.androidstudio.multichannel.xiaomi"
 //             动态修改 常量 字段
             buildConfigField "String", "ENVIRONMENT", '"我是小米首页"'
 //             修改 AndroidManifest.xml 里渠道变量
-            manifestPlaceholders = [CHANNEL_VALUE: "baidu"]
+            manifestPlaceholders = [CHANNEL_VALUE: "xiaomi"]
         }
     }
 
@@ -97,13 +103,36 @@ android {
     }
     //移除lint检测的error
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
     }
 
-    compileOptions {
+    aaptOptions {
+        //防止java.io.FileNotFoundException: This file can not be opened as a file descriptor; it is probably compressed
+        noCompress 'mp3', 'aac', 'mp4', 'wav'
+        cruncherEnabled false //用来关闭Android Studio的PNG合法性检查的，直接不让它检查。
+        useNewCruncher(false)
+    }
+
+
+    compileOptions {//知名使用的JDK版本
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // 批量打包
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            if (output.name == 'release') {
+                variant.packageApplicationProvider.get().outputDirectory = new File(project.rootDir.absolutePath + "/app")
+                //输出apk名称为：版本名_版本code_时间.apk
+                def fileName = "MiChat_v${defaultConfig.versionName}_code${defaultConfig.versionCode}_t${releaseTime()}_release.apk"
+                output.outputFileName = fileName
+            }
+        }
+    }
+
+
 }
 
 dependencies {
